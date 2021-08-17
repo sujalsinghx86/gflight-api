@@ -59,7 +59,6 @@ class TicketWebElements:
             self.wait_for_page_load()
         finally:
             ticket_list = self.driver.find_elements_by_xpath(self.TICKET_XPATH)
-            self.driver.quit()
             return ticket_list
 
 
@@ -147,5 +146,3 @@ class API:
     def get_data(self):
         data = self._processor.processed_data
         return data
-
-# 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

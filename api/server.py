@@ -22,12 +22,16 @@ def fetch_and_return_flights():
 
     if are_valid_query_params(params):
         api = API(params)
-        return api.get_data()
+        return {
+            "status": "success",
+            "tickets": api.get_data()
+        }
     else:
         return {
-            "invalid_query": True
+            "status": "failure",
+            "tickets": {}
         }
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
