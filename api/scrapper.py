@@ -45,6 +45,7 @@ class TicketWebElements:
     def __init__(self, query_params):
         self.query_url = FlightSearchURL(query_params).generate()
         self.driver = HerokuChromeDriver().generate_driver()
+        self.driver.get(self.query_url)
         self.tickets = self.fetch()
 
     def wait_for_page_load(self):
