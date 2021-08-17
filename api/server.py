@@ -1,10 +1,12 @@
 from flask import Flask
+from flask import request
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def index():
+def fetch_and_return_flights():
+    params = request.args
     return "hello world"
 
 
