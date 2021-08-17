@@ -138,7 +138,7 @@ class FlightDataExtractorFromSoup:
 
 class API:
     def __init__(self, query_params):
-        self._tickets = TicketWebElements(query_params)
+        self._tickets = TicketWebElements(query_params).tickets
         self._processor = TicketWebElementsProcessor(self._tickets)
         self._processor.process()
         self.data = self._processor.processed_data
