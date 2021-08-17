@@ -2,6 +2,10 @@ import os
 from selenium import webdriver
 
 
+def on_heroku():
+    return "DYNO" in os.environ
+
+
 class HerokuChromeDriver:
     # HEROKU ENVIRONMENT VARIABLES
     CHROME_BIN_ENV_VAR = os.environ.get("GOOGLE_CHROME_BIN")
@@ -18,9 +22,12 @@ class HerokuChromeDriver:
     def generate_driver(self):
         chrome_options = self._generate_chrome_options()
 
-        driver = webdriver.Chrome(
-            executable_path=self.CHROME_PATH_ENV_VAR,
-            chrome_options=chrome_options
-        )
+        if on_heroku():
+            driver = webdriver.Chrome(
+                executable_path=self.CHROME_PATH_ENV_VAR,
+                chrome_options=chrome_options
+            )
+        else:
+            driver = webdriver.Chrome()
 
         return driver
