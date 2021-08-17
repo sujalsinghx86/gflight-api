@@ -94,7 +94,7 @@ class TicketWebElementsProcessor:
             "total_duration": data.get_total_duration(),
             "price": data.get_price(),
             "take_off_airport": data.get_takeoff_airport(),
-            "landing_airport": data.get_landing_airport()
+            "landing_airport": data.get_landing_airport(),
             "invalid_query": False
         }
         return processed_ticket
