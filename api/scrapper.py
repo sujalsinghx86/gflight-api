@@ -15,16 +15,16 @@ class FlightSearchURL:
     BASE_URL = "https://www.google.com/flights/?q="
 
     def __init__(self, request_params):
-        self.origin_city = request_params["oci"]
-        self.origin_country = request_params["oco"]
-        self.destination_city = request_params["dci"]
-        self.destination_country = request_params["dco"]
+        self.origin_city = request_params["oci"].title()
+        self.origin_country = request_params["oco"].title()
+        self.destination_city = request_params["dci"].title()
+        self.destination_country = request_params["dco"].title()
         self.destination_date = request_params["dd"]
 
     def generate_search_params(self):
-        search_params = f"from {self.origin_city}, {self.origin_country} " \
-                        f"to {self.destination_city}, {self.destination_country} " \
-                        f"on {self.destination_date} one way"
+        search_params = f"From {self.origin_city} {self.origin_country} " \
+                        f"To {self.destination_city} {self.destination_country} " \
+                        f"On {self.destination_date} One Way"
         return url_encode(search_params)
 
     def generate(self):
@@ -39,8 +39,8 @@ class TicketWebElements:
     RETURNS LIST OF SELENIUM WEB ELEMENTS
     """
 
-    TICKET_XPATH = "/html/body/c-wiz[2]/div/div[2]/div/c-wiz/div/c-wiz/div[2]/div[2]" \
-                   "/div/div[2]/div[4]/div/div[2]/div/div[1]/div/div[1]/div/div[2]"
+    TICKET_XPATH = "/html/body/c-wiz[2]/div/div[2]/div/c-wiz/div/c-wiz/c-wiz/div[2]/div[2]/div/div[2]/div[4]/div" \
+                   "/div[2]/div/div/div/div[1]/div/div[2]"
 
     def __init__(self, query_params):
         self.query_url = FlightSearchURL(query_params).generate()
@@ -71,7 +71,6 @@ class TicketWebElementsProcessor:
     def __init__(self, ticket_web_elements_list):
         self.ticket_web_elements_list = ticket_web_elements_list
         self.processed_data = []
-        self.process()
 
     def process(self):
         for element in self.ticket_web_elements_list:
@@ -89,50 +88,63 @@ class TicketWebElementsProcessor:
     def _process_soup(self, soup):
         data = FlightDataExtractorFromSoup(soup)
         processed_ticket = {
-            "departure_time": data.get_departure_time(),
-            "arrival_time": data.get_arrival_time(),
-            "total_duration": data.get_total_duration(),
-            "price": data.get_price(),
-            "take_off_airport": data.get_takeoff_airport(),
-            "landing_airport": data.get_landing_airport(),
+            "departure_airport": data.departure_airport,
+            "departure_time": data.departure_time,
+            "arrival_airport": data.arrival_airport,
+            "arrival_time": data.arrival_time,
+            "total_duration": data.total_duration,
+            "price": data.price,
         }
         return processed_ticket
 
 
 class FlightDataExtractorFromSoup:
+    """
+    ORDER OF PROPERTIES:
+    FROM where and when TO where and when IN how much time FOR how much money
+    """
+
     def __init__(self, soup):
         self.soup = soup
+        self.data_string = self.soup.findAll("div", recursive=False)[1].div.span["aria-label"]
 
-    def get_departure_time(self):
-        departure_time = self.soup.findAll("div", recursive=False)[1].div.span.find("g-bubble").span.span.contents[0]
-        return departure_time
+    @property
+    def departure_airport(self):
+        airport = self.data_string.split("Leaves ")[1].split(" at ")[0]
+        return airport
 
-    def get_arrival_time(self):
-        arrival_time = self.soup.findAll("div", recursive=False)[1].div.span
-        arrival_time = arrival_time.findAll("g-bubble")[1].span.span.contents[0]
-        return arrival_time
+    @property
+    def departure_time(self):
+        departure_string = self.data_string.split(" at ")[1].split(" and ")[0]
+        return {
+            "time": departure_string.split(" on ")[0],
+            "day": departure_string.split(" on ")[1].split(",")[0],
+            "date": departure_string.split(", ")[1]
+        }
 
-    def get_total_duration(self):
+    @property
+    def arrival_airport(self):
+        airport = self.data_string.split(" and arrives at ")[1].split(" at ")[0]
+        return airport
+
+    @property
+    def arrival_time(self):
+        arrival_string = self.data_string.split(" and arrives at ")[1].split(" at ")[1][:-1]
+        return {
+            "time": arrival_string.split(" on ")[0],
+            "day": arrival_string.split(" on ")[1].split(",")[0],
+            "date": arrival_string.split(", ")[1]
+        }
+
+    @property
+    def total_duration(self):
         total_duration = self.soup.findAll("div", recursive=False)[2].div.contents[0]
         return total_duration
 
-    def get_price(self):
-        price = self.soup.findAll("div", recursive=False)[6].div.findAll("div", recursive=False)[1].span.contents[0]
+    @property
+    def price(self):
+        price = self.soup.findAll("div", recursive=False)[5].div.findAll("div", recursive=False)[1].span.contents[0]
         return price
-
-    def _airport_string(self):
-        airport_data = self.soup.findAll("div", recursive=False)[1].div.span.attrs["aria-label"].split(" arrives at ")
-        return airport_data
-
-    def get_takeoff_airport(self):
-        airport_data = self._airport_string()
-        take_off_airport = airport_data[0].replace("Leaves ", "").split(" at ")[0]
-        return take_off_airport
-
-    def get_landing_airport(self):
-        airport_data = self._airport_string()
-        landing_airport = airport_data[1].split(" at ")[0]
-        return landing_airport
 
 
 class API:
