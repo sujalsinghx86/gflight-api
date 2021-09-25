@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request, json
 from api.scrapper import API
 
 app = Flask(__name__)
@@ -21,16 +20,15 @@ def fetch_and_return_flights():
     params = request.args
 
     if are_valid_query_params(params):
-        api = API(params)
-        return {
+        return app.response_class(status=200, mimetype="application/json", response=json.dumps({
             "status": "success",
-            "tickets": api.get_data()
-        }
+            "tickets": API(params).get_data()
+        }))
     else:
-        return {
+        return app.response_class(status=404, mimetype="application/json", response=json.dumps({
             "status": "failure",
-            "tickets": {}
-        }
+            "tickets": []
+        }))
 
 
 if __name__ == "__main__":
