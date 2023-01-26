@@ -39,8 +39,8 @@ class TicketWebElements:
     RETURNS LIST OF SELENIUM WEB ELEMENTS
     """
 
-    TICKET_XPATH = "/html/body/c-wiz[2]/div/div[2]/div/c-wiz/div/c-wiz/c-wiz/div[2]/div[2]/div/div[2]/div[4]/div" \
-                   "/div[2]/div/div/div/div[1]/div/div[2]"
+    TICKET_XPATH = "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[2]/div[3]/ul/li/div/div[2]/div/" \
+                   "div[2]"
 
     def __init__(self, query_params):
         self.query_url = FlightSearchURL(query_params).generate()
