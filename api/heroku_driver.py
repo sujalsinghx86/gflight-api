@@ -3,7 +3,7 @@ from selenium import webdriver
 
 
 def on_server():
-    return os.environ.get("PROD").lower() == "true"
+    return os.environ.get("PROD", "FALSE").upper() == "TRUE"
 
 
 class HerokuChromeDriver:
