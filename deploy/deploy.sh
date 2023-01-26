@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # cd to project directory
-cd "$(dirname "$1")"/.. || exit
+cd "$(dirname "$0")"/.. || exit
 
 # Create virtual environment if it does not exist.
 if [ ! -d venv ]; then
