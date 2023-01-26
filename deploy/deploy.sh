@@ -17,4 +17,5 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # run server
+export PROD=TRUE
 gunicorn --chdir api server:app
