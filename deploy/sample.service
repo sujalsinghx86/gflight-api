@@ -1,0 +1,11 @@
+[Unit]
+Description=GFlight API Server
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/bash /path/to/deploy/deploy.sh
+
+[Install]
+WantedBy=multi-user.target
