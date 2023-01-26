@@ -2,18 +2,14 @@ import os
 from selenium import webdriver
 
 
-def on_heroku():
-    return "DYNO" in os.environ
+def on_server():
+    return os.environ.get("PROD").lower() == "true"
 
 
 class HerokuChromeDriver:
-    # HEROKU ENVIRONMENT VARIABLES
-    CHROME_BIN_ENV_VAR = os.environ.get("GOOGLE_CHROME_BIN")
-    CHROME_PATH_ENV_VAR = os.environ.get("CHROME_DRIVER_PATH")
-
-    def _generate_chrome_options(self):
+    @staticmethod
+    def _generate_chrome_options():
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.binary_location = self.CHROME_BIN_ENV_VAR
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-dev-sha-usage")
         chrome_options.add_argument("--no-sandbox")
@@ -22,9 +18,8 @@ class HerokuChromeDriver:
     def generate_driver(self):
         chrome_options = self._generate_chrome_options()
 
-        if on_heroku():
+        if on_server():
             driver = webdriver.Chrome(
-                executable_path=self.CHROME_PATH_ENV_VAR,
                 chrome_options=chrome_options
             )
         else:
